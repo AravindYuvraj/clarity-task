@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Task, Priority, ParsedTaskData } from './types';
 import { TaskInputForm } from './components/TaskInputForm';
 import { TaskList } from './components/TaskList';
 import { Modal } from './components/Modal';
 import { EditTaskForm } from './components/EditTaskForm';
-import { parseTaskWithGemini } from './services/geminiService';
+import { parseTaskWithGemini, parseTranscriptWithGemini } from './services/geminiService';
 import { mapStringToPriority } from './utils/taskUtils';
 import { DEFAULT_PRIORITY_STRING } from './constants';
 import { LandingPage } from './components/LandingPage'; // Import LandingPage
@@ -24,7 +23,7 @@ const App: React.FC = () => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const handleAddTask = async (naturalLanguageInput: string) => {
+  const handleAddTask = async (naturalLanguageInput: string): Promise<void> => {
     setIsLoading(true);
     setError(null);
     try {
@@ -40,7 +39,7 @@ const App: React.FC = () => {
         isCompleted: false,
         createdAt: new Date().toISOString(),
       };
-      setTasks(prevTasks => [newTask, ...prevTasks]);
+      setTasks((prevTasks: Task[]) => [newTask, ...prevTasks]);
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -50,16 +49,42 @@ const App: React.FC = () => {
     }
   };
 
-  const handleToggleComplete = (taskId: string) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
+  const handleParseTranscript = async (transcript: string): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const parsedTasks: ParsedTaskData[] = await parseTranscriptWithGemini(transcript);
+      const newTasks: Task[] = parsedTasks.map((parsedData) => ({
+        id: crypto.randomUUID(),
+        originalInput: parsedData.taskName || "Untitled Task",
+        taskName: parsedData.taskName || "Untitled Task",
+        assignee: parsedData.assignee,
+        dueDate: parsedData.dueDate,
+        dueTime: parsedData.dueTime,
+        priority: mapStringToPriority(parsedData.priority || DEFAULT_PRIORITY_STRING),
+        isCompleted: false,
+        createdAt: new Date().toISOString(),
+      }));
+      setTasks((prevTasks: Task[]) => [...newTasks, ...prevTasks]);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      setTimeout(() => setError(null), 7000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleComplete = (taskId: string): void => {
+    setTasks((prevTasks: Task[]) =>
+      prevTasks.map((task: Task) =>
         task.id === taskId ? { ...task, isCompleted: !task.isCompleted } : task
       )
     );
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+  const handleDeleteTask = (taskId: string): void => {
+    setTasks((prevTasks: Task[]) => prevTasks.filter((task: Task) => task.id !== taskId));
   };
 
   const handleOpenEditModal = (task: Task) => {
@@ -70,11 +95,11 @@ const App: React.FC = () => {
     setEditingTask(null);
   };
 
-  const handleSaveEditedTask = (updatedTask: Task) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task => (task.id === updatedTask.id ? updatedTask : task))
+  const handleSaveEditedTask = (updatedTask: Task): void => {
+    setTasks((prevTasks: Task[]) =>
+      prevTasks.map((task: Task) => (task.id === updatedTask.id ? updatedTask : task))
     );
-    setEditingTask(null); 
+    setEditingTask(null);
   };
 
   const handleLaunchApp = () => {
@@ -108,7 +133,7 @@ const App: React.FC = () => {
               )}
 
               <div className="mb-8 p-6 sm:p-8 bg-pane backdrop-blur-md shadow-2xl rounded-xl border border-pane-border">
-                <TaskInputForm onAddTask={handleAddTask} isLoading={isLoading} />
+                <TaskInputForm onAddTask={handleAddTask} onParseTranscript={handleParseTranscript} isLoading={isLoading} />
               </div>
               
               <div className="p-6 sm:p-8 bg-pane backdrop-blur-md shadow-2xl rounded-xl border border-pane-border">

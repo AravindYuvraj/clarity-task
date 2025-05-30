@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { ParsedTaskData, Priority } from '../types';
 import { GEMINI_MODEL_NAME, DEFAULT_PRIORITY_STRING } from '../constants';
@@ -23,7 +22,7 @@ const getCurrentDateISO = (): string => {
 
 const generatePrompt = (naturalLanguageInput: string): string => {
   const currentDate = getCurrentDateISO();
-  const currentYear = currentDate.substring(0, 4);
+  const currentYear = new Date().getFullYear().toString(); // Dynamically calculate the current year
   const nextYear = (parseInt(currentYear) + 1).toString();
 
   return `
@@ -81,7 +80,7 @@ export const parseTaskWithGemini = async (naturalLanguageInput: string): Promise
       },
     });
 
-    let jsonStr = response.text.trim();
+    let jsonStr = response.text?.trim() || ""; // Add null check for response.text
     const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
     const match = jsonStr.match(fenceRegex);
     if (match && match[2]) {
@@ -105,5 +104,73 @@ export const parseTaskWithGemini = async (naturalLanguageInput: string): Promise
          throw new Error("Task content was blocked due to safety settings. Please rephrase.");
     }
     throw new Error(`Failed to parse task with AI. ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+export const parseTranscriptWithGemini = async (transcript: string): Promise<ParsedTaskData[]> => {
+  if (!ai) {
+    throw new Error("Gemini API client is not initialized. Check API_KEY.");
+  }
+  if (!transcript.trim()) {
+    throw new Error("Transcript cannot be empty.");
+  }
+
+  const currentDate = getCurrentDateISO();
+  const currentYear = new Date().getFullYear().toString(); // Dynamically calculate the current year
+  const nextYear = (parseInt(currentYear) + 1).toString();
+
+  const prompt = `You are an intelligent task parsing assistant. Your goal is to extract multiple tasks from a meeting transcript. Each task should include:
+  - Task Name
+  - Assignee
+  - Due Date (YYYY-MM-DD)
+  - Due Time (HH:MM)
+  - Priority (P1, P2, P3, P4; default to P3 if not specified)
+
+The current date for your reference is: ${currentDate}.
+If a date like "June 20th" is mentioned without an explicit year:
+  - If "June 20th" of the current year (${currentYear}) has not yet passed (compared to ${currentDate}), assume the current year (${currentYear}).
+  - If "June 20th" of the current year (${currentYear}) has already passed (compared to ${currentDate}), assume the next year (${nextYear}).
+
+Input Transcript: "${transcript}"
+
+Respond ONLY with a JSON array of task objects in the following format:
+[
+  {
+    "taskName": "string",
+    "assignee": "string | null",
+    "dueDate": "YYYY-MM-DD | null",
+    "dueTime": "HH:MM | null",
+    "priority": "P1 | P2 | P3 | P4"
+  },
+  ...
+]
+`;
+
+  try {
+    const response: GenerateContentResponse = await ai.models.generateContent({
+      model: GEMINI_MODEL_NAME,
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.1,
+      },
+    });
+
+    let jsonStr = response.text?.trim() || ""; // Add null check for response.text
+    const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
+    const match = jsonStr.match(fenceRegex);
+    if (match && match[2]) {
+      jsonStr = match[2].trim();
+    }
+
+    const parsedTasks = JSON.parse(jsonStr) as ParsedTaskData[];
+    return parsedTasks.map(task => ({
+      ...task,
+      priority: mapStringToPriority(task.priority || DEFAULT_PRIORITY_STRING),
+    }));
+
+  } catch (error) {
+    console.error("Error parsing transcript with Gemini:", error);
+    throw new Error(`Failed to parse transcript with AI. ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };

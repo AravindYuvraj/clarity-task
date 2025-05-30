@@ -131,11 +131,3 @@ Once the API key is accessible:
 │       ├── SparkleIcon.tsx
 │       └── SpinnerIcon.tsx
 └── (No package.json or node_modules as dependencies are via CDN)
-```
-
-## Important Considerations
-
-*   **API Key Security**: The method described for setting the API key directly in `index.html` is **not secure for production**. In a real-world application, API keys should be handled by a backend proxy or a build system that securely injects them, ensuring they are not exposed directly in client-side code.
-*   **Rate Limiting**: Be mindful of the Gemini API rate limits, especially during development and testing.
-*   **Error Handling**: The app includes basic error handling for API calls. Check the browser console for more detailed error messages if issues arise.
-```

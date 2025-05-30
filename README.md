@@ -38,64 +38,15 @@ The application features a beautiful, responsive UI built with React and Tailwin
 *   A **Google Gemini API Key**. You can obtain one from [Google AI Studio](https://aistudio.google.com/app/apikey).
 
 ## Setup and Running the Application
+Clone the repo:git clone https://github.com/your-username/clarity-task
 
-The application is designed to run directly from the `index.html` file without a complex build step, primarily relying on CDNs for its dependencies. However, for the Gemini API to function, you **must** configure your API key.
+Create a .env.local file: GEMINI_API_KEY=your-api-key-here
 
-### 1. Configure API Key
+Install dependencies: 'npm install' 
 
-The application expects the Gemini API key to be available as an environment variable named `API_KEY` within the context where the JavaScript is executed. Since this is a client-side application without a traditional backend or build process that injects environment variables, you'll need to make it available to the browser's JavaScript environment.
+Run the command : 'npm run dev'
 
-**For local development, the simplest way is to temporarily set it in your browser's console before the `geminiService.ts` script initializes, or by creating a `.env` file (if you were using a bundler). However, for this project structure, we'll use a more direct approach for local testing:**
-
-**Option A: Directly in `index.html` (for quick local testing only - NOT FOR PRODUCTION)**
-
-   *   Open `index.html`.
-   *   Before the closing `</head>` tag or at the beginning of the `<body>` tag, add the following script block:
-
-     ```html
-     <script>
-       // THIS IS FOR LOCAL DEVELOPMENT/TESTING ONLY.
-       // DO NOT COMMIT YOUR API KEY TO VERSION CONTROL.
-       // Replace 'YOUR_GEMINI_API_KEY' with your actual key.
-       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:") {
-         process = { env: { API_KEY: 'YOUR_GEMINI_API_KEY' } };
-       }
-     </script>
-     ```
-
-   *   **Important Security Note**:
-        *   This method embeds your API key directly in the HTML. **This is highly insecure for production or if you share this code publicly.**
-        *   Only use this method for local testing on your machine.
-        *   **Ensure this modification is NOT committed to any version control system (e.g., Git) if your key is present.** It's best to add `index.html` to `.gitignore` if you use this method frequently, or be extremely careful.
-
-**Option B: Using a Local Development Server with Environment Variable Simulation (More Advanced)**
-
-   If you are serving the files using a local development server that allows setting global JavaScript variables or injecting scripts, you could use that mechanism. For example, some live server extensions for IDEs might offer such features.
-
-**The application's `services/geminiService.ts` attempts to read `process.env.API_KEY`. The script added in Option A simulates this `process.env` object for browser environments.**
-
-### 2. Open the Application
-
-Once the API key is accessible:
-
-*   **Directly in Browser**:
-    Navigate to the project directory and open the `index.html` file in your web browser.
-    *Example*: `file:///path/to/your/project/index.html`
-
-*   **Using a Simple HTTP Server (Recommended for better behavior)**:
-    For a more robust local development experience (to avoid potential issues with `file:///` paths and CORS if external resources were loaded differently), you can use a simple local HTTP server.
-    1.  Ensure you have Node.js installed (which usually includes `npx`).
-    2.  Open your terminal or command prompt.
-    3.  Navigate to the root directory of the project (where `index.html` is located).
-    4.  Run a simple server. For example, using `http-server`:
-        ```bash
-        npx http-server .
-        ```
-        Or, if you have Python installed:
-        ```bash
-        python -m http.server
-        ```
-    5.  The server will output a local URL (e.g., `http://localhost:8080` or `http://127.0.0.1:8000`). Open this URL in your browser.
+It will give you a link to the application click on it.
 
 ### 3. Start Using the App
 

@@ -53,3 +53,13 @@ It will give you a link to the application click on it.
 *   You should see the landing page.
 *   Click "Launch Task Manager" to go to the main application.
 *   Try adding tasks like "Schedule a meeting with marketing for next Tuesday at 2 PM P2".
+
+
+## Screen shots
+<img width="904" alt="image" src="https://github.com/user-attachments/assets/68782704-1112-478c-88c6-047091ad3a96" />
+
+<img width="942" alt="image" src="https://github.com/user-attachments/assets/897e1dcd-768f-4695-aaf1-c79e79e451b0" />
+
+<img width="605" alt="image" src="https://github.com/user-attachments/assets/7d11bd87-a1f5-4561-923c-8e5a888bc9fc" />
+
+

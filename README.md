@@ -53,32 +53,3 @@ It will give you a link to the application click on it.
 *   You should see the landing page.
 *   Click "Launch Task Manager" to go to the main application.
 *   Try adding tasks like "Schedule a meeting with marketing for next Tuesday at 2 PM P2".
-
-## Project Structure
-
-```
-.
-├── README.md                 # This file
-├── index.html                # Main HTML entry point, includes Tailwind CSS and React CDN links
-├── index.tsx                 # Main React application entry point (renders App.tsx)
-├── metadata.json             # Application metadata
-├── types.ts                  # TypeScript type definitions (Task, Priority, etc.)
-├── constants.ts              # Global constants (e.g., Gemini model name)
-├── utils/
-│   └── taskUtils.ts          # Utility functions for tasks (formatting, priority styling)
-├── services/
-│   └── geminiService.ts      # Service for interacting with the Gemini API
-├── components/
-│   ├── App.tsx               # Main application component, handles state and logic
-│   ├── LandingPage.tsx       # Landing page component
-│   ├── TaskInputForm.tsx     # Form for adding new tasks
-│   ├── TaskList.tsx          # Component to display the list of tasks
-│   ├── TaskItem.tsx          # Component for a single task item
-│   ├── Modal.tsx             # Reusable modal component (for editing tasks)
-│   ├── EditTaskForm.tsx      # Form for editing tasks within the modal
-│   └── icons/                # SVG icon components
-│       ├── DeleteIcon.tsx
-│       ├── EditIcon.tsx
-│       ├── SparkleIcon.tsx
-│       └── SpinnerIcon.tsx
-└── (No package.json or node_modules as dependencies are via CDN)

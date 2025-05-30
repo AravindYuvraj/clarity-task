@@ -1,0 +1,6 @@
+
+{
+  "name": "Natural Language Task Manager",
+  "description": "An enterprise-grade to-do list application that parses natural language task inputs using Gemini API and displays them in a structured, editable task list.",
+  "requestFramePermissions": []
+}
